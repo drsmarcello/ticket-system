@@ -1,0 +1,161 @@
+model Company {
+  id               String     @id @default(uuid())
+  name             String
+  phone            String?
+  email            String     @unique
+  address          String?
+  primaryContactId String?    @unique 
+  primaryContact   Contact?   @relation("PrimaryContact", fields: [primaryContactId], references: [id])
+  
+  contacts         Contact[]  @relation("CompanyContacts")
+  tickets          Ticket[]
+  
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model Contact {
+  id        String  @id @default(uuid())
+  name      String
+  email     String  @unique
+  phone     String?
+  companyId String
+  company   Company @relation("CompanyContacts", fields: [companyId], references: [id], onDelete: Cascade)
+  
+  primaryFor Company? @relation("PrimaryContact")
+  tickets    Ticket[]
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Ticket {
+  id            String          @id @default(uuid())
+  title         String
+  description   String
+  company       Company         @relation(fields: [companyId], references: [id])
+  companyId     String
+  contact       Contact         @relation(fields: [contactId], references: [id])
+  contactId     String
+  assignedTo    User?           @relation("AssignedTickets", fields: [assignedToId], references: [id])
+  assignedToId  String?
+  createdBy     User?           @relation("CreatedTickets", fields: [createdById], references: [id])
+  createdById   String?
+  status        TicketStatus    @default(NEW)
+  priority      TicketPriority  @default(MEDIUM)
+  
+  estimatedMinutes Int?
+  
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  timeEntries   TimeEntry[]     @relation("TicketTime")
+  comments      Comment[]
+  histories     History[]
+}
+
+enum TicketStatus {
+  NEW
+  IN_PROGRESS
+  WAITING_FOR_CUSTOMER
+  COMPLETED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model TimeEntry {
+  id          String        @id @default(uuid())
+  ticketId    String
+  ticket      Ticket        @relation("TicketTime", fields: [ticketId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User          @relation("UserTime", fields: [userId], references: [id])
+  description String
+  startTime   DateTime
+  endTime     DateTime
+  duration    Int
+  billable    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Comment {
+  id          String      @id @default(uuid())
+  ticketId    String
+  ticket      Ticket      @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  content     String
+  isInternal  Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model History {
+  id        String        @id @default(uuid())
+  ticketId  String
+  ticket    Ticket        @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?         @relation(fields: [userId], references: [id])
+  type      ActivityType
+  oldValue  String?
+  newValue  String?
+  message   String
+  createdAt DateTime      @default(now())
+}
+
+enum ActivityType {
+  CREATED
+  COMMENT
+  STATUS_CHANGE
+  PRIORITY_CHANGE
+  ASSIGNMENT_CHANGE
+  TIME_LOGGED
+}
+
+model User {
+  id              String      @id @default(uuid())
+  name            String
+  email           String      @unique
+  password        String
+  role            Role        @default(EMPLOYEE)
+  isActive        Boolean     @default(true)
+  lastLogin       DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  timeEntries     TimeEntry[] @relation("UserTime")
+  comments        Comment[]
+  histories       History[]
+  assignedTickets Ticket[]    @relation("AssignedTickets")
+  createdTickets  Ticket[]    @relation("CreatedTickets")
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+  CUSTOMER
+}
+
+model SystemConfig {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}

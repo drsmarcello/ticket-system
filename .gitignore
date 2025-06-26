@@ -1,0 +1,332 @@
+# ================================
+# SICHERHEITSKRITISCHE DATEIEN
+# ================================
+
+# Environment Dateien (NIE committen!)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Docker Compose Overrides (können lokale Änderungen enthalten)
+docker-compose.override.yml
+
+# ================================
+# PRODUCTION DATA & SECRETS
+# ================================
+
+# Nginx Proxy Manager Data (enthält SSL-Zertifikate & Configs)
+nginx/
+npm-data/
+npm-ssl/
+
+# Database Volumes & Backups
+postgres_data*/
+backups/
+local-backups/
+
+# Application Uploads & User Data
+uploads/
+uploads_data*/
+
+# Logs (können sensitive Daten enthalten)
+*.log
+logs/
+
+# ================================
+# DEVELOPMENT FILES
+# ================================
+
+# Development Docker Compose Files (automatisch generiert)
+docker-compose.dev.yml
+docker-compose.sim.yml
+
+# Local Development Data
+*-dev/
+*-sim/
+
+# ================================
+# NODE.JS & NPM
+# ================================
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Package Manager Lockfiles (optional - diskutierbar)
+# package-lock.json
+# yarn.lock
+
+# Runtime & Build Outputs
+dist/
+build/
+.next/
+out/
+
+# TypeScript Build Info
+*.tsbuildinfo
+.tsbuildinfo
+
+# ================================
+# FRONTEND SPECIFIC
+# ================================
+
+# Next.js
+.next/
+out/
+.vercel/
+
+# React/Next.js Environment
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ESLint Cache
+.eslintcache
+
+# Parcel Cache
+.cache/
+.parcel-cache/
+
+# ================================
+# BACKEND SPECIFIC
+# ================================
+
+# Prisma
+prisma/migrations/
+.env.test
+
+# TypeScript Output
+backend/dist/
+backend/build/
+
+# ================================
+# DOCKER & CONTAINERIZATION
+# ================================
+
+# Docker volumes (falls lokal gemountet)
+postgres-data/
+redis-data/
+
+# Docker Compose Override Files
+docker-compose.*.yml
+!docker-compose.prod.yml
+
+# ================================
+# OPERATING SYSTEM
+# ================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ================================
+# IDE & EDITORS
+# ================================
+
+# Visual Studio Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ================================
+# TEMPORARY & CACHE FILES
+# ================================
+
+# General Temporary Files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*.rej
+
+# Cache Directories
+.cache/
+*.cache
+
+# ================================
+# TESTING & COVERAGE
+# ================================
+
+# Test Coverage
+coverage/
+*.lcov
+.nyc_output
+.coverage
+
+# Jest
+jest-coverage/
+
+# ================================
+# DEPLOYMENT & CI/CD
+# ================================
+
+# Deployment Scripts (falls sie Secrets enthalten)
+deploy-secrets.sh
+.deploy-config
+
+# CI/CD temporäre Dateien
+.github-actions-cache/
+
+# ================================
+# MONITORING & ANALYTICS
+# ================================
+
+# Performance Monitoring
+.bundle-analyzer/
+.lighthouse/
+
+# Error Tracking
+.sentry/
+
+# ================================
+# SECURITY & CERTIFICATES
+# ================================
+
+# Private Keys & Certificates
+*.key
+*.pem
+*.crt
+*.cer
+*.p12
+*.pfx
+*.jks
+
+# GPG Keys
+*.gpg
+*.asc
+
+# SSH Keys
+id_rsa
+id_rsa.pub
+id_ecdsa
+id_ecdsa.pub
+id_ed25519
+id_ed25519.pub
+
+# ================================
+# PROJECT SPECIFIC EXCLUSIONS
+# ================================
+
+# Falls du spezielle Tools nutzt
+.terraform/
+.ansible/
+.vagrant/
+
+# Database Dumps (falls lokal erstellt)
+*.sql.gz
+*.dump
+
+# Backup Files
+*.backup.tar.gz
+*.backup.zip
+
+# ================================
+# DOCUMENTATION BUILDS
+# ================================
+
+# Generated Documentation
+docs/build/
+site/
+
+# ================================
+# MOBILE DEVELOPMENT (falls relevant)
+# ================================
+
+# React Native
+.expo/
+.expo-shared/
+
+# ================================
+# PYTHON (falls du Python Tools nutzt)
+# ================================
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.env
+
+# ================================
+# KEEP THESE EXAMPLES/TEMPLATES
+# ================================
+
+# Explizit behalten (mit !)
+!.env.example
+!.env.dev.example
+!.env.prod.example
+!docker-compose.prod.yml
+!README.md
+!.gitignore.example

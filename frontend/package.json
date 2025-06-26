@@ -1,0 +1,78 @@
+{
+  "name": "ticket-management-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Modern Ticket Management System Frontend with Next.js, TypeScript, and real-time features",
+  "scripts": {
+    "build": "next build",
+    "start": "next start",
+    "dev": "next dev",
+    "type-check": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@headlessui/react": "^1.7.19",
+    "@heroicons/react": "^2.0.18",
+    "@hookform/resolvers": "^3.3.2",
+    "@tanstack/react-query": "^5.81.2",
+    "clsx": "^2.0.0",
+    "date-fns": "^2.30.0",
+    "graphql-request": "^7.2.0",
+    "next": "^14.2.30",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.48.2",
+    "react-hot-toast": "^2.5.2",
+    "recharts": "^2.8.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.4",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^8",
+    "eslint-config-next": "14.0.3",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.1",
+    "postcss": "^8.5.5",
+    "prettier": "^3.6.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5"
+  },
+  "keywords": [
+    "ticket-management",
+    "nextjs",
+    "typescript",
+    "react",
+    "tailwindcss",
+    "graphql",
+    "frontend",
+    "dashboard"
+  ],
+  "author": "Marcello Richter",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/[username]/ticket-system"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

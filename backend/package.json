@@ -1,0 +1,70 @@
+{
+    "name": "ticket-management-backend",
+    "version": "1.0.0",
+    "main": "dist/app.js",
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/app.js",
+        "dev": "npx prisma generate && ts-node-dev --respawn --transpile-only --poll src/app.ts",
+        "type-check": "tsc --noEmit",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "prisma:generate": "prisma generate",
+        "prisma:migrate": "prisma migrate deploy",
+        "prisma:migrate:dev": "prisma migrate dev",
+        "prisma:studio": "prisma studio",
+        "prisma:seed": "ts-node prisma/seed.ts",
+        "postinstall": "prisma generate"
+    },
+    "prisma": {
+        "seed": "ts-node prisma/seed.ts"
+    },
+    "dependencies": {
+        "@graphql-tools/merge": "^9.0.24",
+        "@graphql-tools/schema": "^10.0.23",
+        "@prisma/client": "^6.9.0",
+        "apollo-server-core": "^3.13.0",
+        "apollo-server-express": "^3.13.0",
+        "bcrypt": "^5.1.1",
+        "cors": "^2.8.5",
+        "dotenv": "^16.5.0",
+        "express": "^4.21.2",
+        "graphql": "^16.11.0",
+        "graphql-tag": "^2.12.6",
+        "helmet": "^7.1.0",
+        "jsonwebtoken": "^9.0.2",
+        "pg": "^8.16.2"
+    },
+    "devDependencies": {
+        "@types/bcrypt": "^5.0.2",
+        "@types/cors": "^2.8.19",
+        "@types/express": "^4.17.23",
+        "@types/jsonwebtoken": "^9.0.9",
+        "@types/node": "^20.19.0",
+        "nodemon": "^3.1.10",
+        "prisma": "^6.9.0",
+        "ts-node": "^10.9.2",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.8.3"
+    },
+    "keywords": [
+        "ticket-management",
+        "graphql",
+        "typescript",
+        "prisma",
+        "apollo-server",
+        "authentication",
+        "role-based-access",
+        "time-tracking",
+        "backend-api"
+    ],
+    "author": "Marcello Richter",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/drsmarcello/ticket-system"
+    },
+    "engines": {
+        "node": ">=18.0.0",
+        "npm": ">=8.0.0"
+    }
+}
