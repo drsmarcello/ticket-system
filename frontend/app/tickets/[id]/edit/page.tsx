@@ -53,7 +53,6 @@ export default function EditTicketPage() {
   const { data: usersData } = useUsers();
   const updateTicketMutation = useUpdateTicket();
 
-  // Initialize form when ticket data loads
   useEffect(() => {
     if (ticketData?.ticket) {
       const ticket = ticketData.ticket;
@@ -75,7 +74,6 @@ export default function EditTicketPage() {
     }
   }, [ticketData]);
 
-  // Check for changes
   useEffect(() => {
     if (originalData) {
       const changed = Object.keys(formData).some(
@@ -85,17 +83,14 @@ export default function EditTicketPage() {
     }
   }, [formData, originalData]);
 
-  // Handle form input changes
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
-      // Reset contactId when company changes
       ...(field === "companyId" && { contactId: "" }),
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -104,7 +99,6 @@ export default function EditTicketPage() {
       return;
     }
 
-    // Build update data object with only changed fields
     const updateData: TicketUpdateInput = {};
 
     if (formData.title !== originalData.title) {
@@ -134,7 +128,6 @@ export default function EditTicketPage() {
         : null;
     }
 
-    // Check if there are any changes before proceeding
     if (Object.keys(updateData).length === 0) {
       toast.error("Keine Änderungen erkannt");
       return;
@@ -152,7 +145,6 @@ export default function EditTicketPage() {
     }
   };
 
-  // warn user about unsaved changes
   const handleCancel = () => {
     if (hasChanges) {
       if (
@@ -201,7 +193,6 @@ export default function EditTicketPage() {
   );
   const contacts = selectedCompany?.contacts || [];
 
-  // Check for Permission / ony EMPLOYEE or ADMIN
   if (user?.role === "CUSTOMER") {
     return (
       <div className="text-center">
@@ -304,13 +295,13 @@ export default function EditTicketPage() {
                 value={formData.status}
                 onChange={(e) => handleInputChange("status", e.target.value)}
               >
-                <option value="NEW">🆕 Neu</option>
-                <option value="IN_PROGRESS">⚡ In Bearbeitung</option>
+                <option value="NEW"> Neu</option>
+                <option value="IN_PROGRESS">In Bearbeitung</option>
                 <option value="WAITING_FOR_CUSTOMER">
-                  ⏳ Wartet auf Kunde
+                  Wartet auf Kunde
                 </option>
-                <option value="COMPLETED">✅ Abgeschlossen</option>
-                <option value="CLOSED">🔒 Geschlossen</option>
+                <option value="COMPLETED">Abgeschlossen</option>
+                <option value="CLOSED">Geschlossen</option>
               </select>
             </div>
 

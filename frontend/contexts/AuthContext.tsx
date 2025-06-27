@@ -40,13 +40,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  // Update client headers when token changes
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedToken = localStorage.getItem("token");
       setToken(savedToken);
 
-      // Set authorization header for graphql-request client
       if (savedToken) {
         client.setHeader("Authorization", `Bearer ${savedToken}`);
       } else {
@@ -55,7 +53,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Update headers when token changes
   useEffect(() => {
     if (token) {
       client.setHeader("Authorization", `Bearer ${token}`);
@@ -64,7 +61,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [token]);
 
-  // Query for current user
   const { data: meData, isLoading: meLoading } = useQuery<MeResponse>({
     queryKey: ["me"],
     queryFn: () => client.request<MeResponse>(GET_ME),
@@ -73,14 +69,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Update user when data changes
   useEffect(() => {
     if (meData?.me) {
       setUser(meData.me);
     }
   }, [meData]);
 
-  // Login mutation
   const loginMutation = useMutation<LoginResponse, Error, LoginInput>({
     mutationFn: async ({ email, password }: LoginInput) => {
       return client.request<LoginResponse>(LOGIN_MUTATION, {
@@ -92,9 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("token", newToken);
       setToken(newToken);
       setUser(newUser);
-      // Update client header immediately
       client.setHeader("Authorization", `Bearer ${newToken}`);
-      // Invalidate and refetch user data
       queryClient.invalidateQueries({ queryKey: ["me"] });
       toast.success(`Willkommen zurück, ${newUser.name}!`);
     },
@@ -103,7 +95,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  // Register mutation
   const registerMutation = useMutation<RegisterResponse, Error, RegisterInput>({
     mutationFn: async ({ name, email, password }: RegisterInput) => {
       return client.request<RegisterResponse>(REGISTER_MUTATION, {
@@ -115,9 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("token", newToken);
       setToken(newToken);
       setUser(newUser);
-      // Update client header immediately
       client.setHeader("Authorization", `Bearer ${newToken}`);
-      // Invalidate and refetch user data
       queryClient.invalidateQueries({ queryKey: ["me"] });
       toast.success(`Willkommen, ${newUser.name}!`);
     },
@@ -153,9 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("token");
     setToken(null);
     setUser(null);
-    // Clear authorization header
     client.setHeader("Authorization", "");
-    // Clear all queries
     queryClient.clear();
     toast.success("Erfolgreich abgemeldet");
     window.location.href = "/login";

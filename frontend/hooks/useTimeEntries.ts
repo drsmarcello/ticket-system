@@ -54,7 +54,6 @@ export function useMyTimeEntries(from?: string, to?: string) {
   });
 }
 
-// Mutations
 export function useCreateTimeEntry() {
   const queryClient = useQueryClient();
 
@@ -62,15 +61,12 @@ export function useCreateTimeEntry() {
     mutationFn: (data: TimeEntryCreateInput) =>
       client.request<CreateTimeEntryResponse>(CREATE_TIME_ENTRY, { data }),
     onSuccess: (_result, variables) => {
-      // Invalidate and refetch time entry queries
       queryClient.invalidateQueries({ queryKey: ["time-entries"] });
       queryClient.invalidateQueries({ queryKey: ["my-time-entries"] });
-      // Also invalidate the specific ticket to update time entries there
       queryClient.invalidateQueries({
         queryKey: ["ticket", variables.ticketId],
       });
 
-      // Refetch active queries
       queryClient.refetchQueries({ queryKey: ["time-entries"] });
       queryClient.refetchQueries({ queryKey: ["ticket", variables.ticketId] });
     },
@@ -88,14 +84,11 @@ export function useUpdateTimeEntry() {
     mutationFn: ({ id, data }: { id: string; data: TimeEntryUpdateInput }) =>
       client.request<UpdateTimeEntryResponse>(UPDATE_TIME_ENTRY, { id, data }),
     onSuccess: (_result, variables) => {
-      // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: ["time-entries"] });
       queryClient.invalidateQueries({ queryKey: ["time-entry", variables.id] });
       queryClient.invalidateQueries({ queryKey: ["my-time-entries"] });
-      // Also invalidate tickets that might show this time entry
       queryClient.invalidateQueries({ queryKey: ["ticket"] });
 
-      // Refetch active queries
       queryClient.refetchQueries({ queryKey: ["time-entries"] });
       queryClient.refetchQueries({ queryKey: ["time-entry", variables.id] });
     },
@@ -108,12 +101,10 @@ export function useDeleteTimeEntry() {
   return useMutation({
     mutationFn: (id: string) => client.request(DELETE_TIME_ENTRY, { id }),
     onSuccess: () => {
-      // Invalidate all time entry related queries
       queryClient.invalidateQueries({ queryKey: ["time-entries"] });
       queryClient.invalidateQueries({ queryKey: ["my-time-entries"] });
       queryClient.invalidateQueries({ queryKey: ["ticket"] });
 
-      // Refetch active queries
       queryClient.refetchQueries({ queryKey: ["time-entries"] });
     },
   });

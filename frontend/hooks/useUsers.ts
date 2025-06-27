@@ -8,6 +8,7 @@ import {
   UPDATE_USER,
   DELETE_USER,
   UPDATE_PROFILE,
+  UPDATE_PASSWORD
 } from "@/lib/graphql";
 import type {
   UserResponse,
@@ -19,9 +20,10 @@ import type {
   UpdateUserResponse,
   DeleteUserResponse,
   UpdateProfileResponse,
+  EmailUpdateInput,
+  PasswordUpdateInput
 } from "@/lib/graphql";
 
-// Query Hooks
 export function useUsers() {
   return useQuery<UsersResponse>({
     queryKey: ["users"],
@@ -50,7 +52,6 @@ export function useMe() {
   });
 }
 
-// Mutation Hooks
 export function useCreateUser() {
   const queryClient = useQueryClient();
 
@@ -58,7 +59,6 @@ export function useCreateUser() {
     mutationFn: (data: UserCreateInput) =>
       client.request<CreateUserResponse>(CREATE_USER, { data }),
     onSuccess: () => {
-      // Invalidate and refetch users list
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.refetchQueries({ queryKey: ["users"] });
     },
@@ -76,11 +76,9 @@ export function useUpdateUser() {
     mutationFn: ({ id, data }: { id: string; data: UserUpdateInput }) =>
       client.request<UpdateUserResponse>(UPDATE_USER, { id, data }),
     onSuccess: (_result, variables) => {
-      // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["user", variables.id] });
 
-      // Refetch active queries
       queryClient.refetchQueries({ queryKey: ["users"] });
       queryClient.refetchQueries({ queryKey: ["user", variables.id] });
     },
@@ -94,7 +92,6 @@ export function useDeleteUser() {
     mutationFn: (id: string) =>
       client.request<DeleteUserResponse>(DELETE_USER, { id }),
     onSuccess: () => {
-      // Invalidate users list
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.refetchQueries({ queryKey: ["users"] });
     },
@@ -108,7 +105,31 @@ export function useUpdateProfile() {
     mutationFn: (data: UserUpdateInput) =>
       client.request<UpdateProfileResponse>(UPDATE_PROFILE, { data }),
     onSuccess: () => {
-      // Invalidate current user data
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      queryClient.refetchQueries({ queryKey: ["me"] });
+    },
+  });
+}
+
+export function useUpdatePassword() {
+  const queryClient = useQueryClient();
+  return useMutation<UpdateProfileResponse, Error, PasswordUpdateInput>({
+    mutationFn: (data: PasswordUpdateInput) =>
+      client.request<UpdateProfileResponse>(UPDATE_PASSWORD, { data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      queryClient.refetchQueries({ queryKey: ["me"] });
+    },
+  });
+}
+
+export function useUpdateEmail() {
+  const queryClient = useQueryClient();
+
+  return useMutation<UpdateProfileResponse, Error, EmailUpdateInput>({
+    mutationFn: (data: EmailUpdateInput) =>
+      client.request<UpdateProfileResponse>(UPDATE_PROFILE, { data }),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["me"] });
       queryClient.refetchQueries({ queryKey: ["me"] });
     },

@@ -11,7 +11,6 @@ import {
   ClockIcon,
   CalendarIcon,
   TrashIcon,
-  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 
 export default function TimeEntriesPage() {
@@ -94,16 +93,6 @@ export default function TimeEntriesPage() {
           <p className="mt-1 text-sm text-gray-600">
             Überblick über alle erfassten Arbeitszeiten
           </p>
-        </div>
-        <div className="mt-4 sm:mt-0">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <div className="flex items-center">
-              <ExclamationTriangleIcon className="h-5 w-5 text-blue-600 mr-2" />
-              <span className="text-sm text-blue-800">
-                Zeit wird jetzt direkt am Ticket erfasst
-              </span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -342,9 +331,6 @@ export default function TimeEntriesPage() {
               <h3 className="mt-2 text-sm font-medium text-gray-900">
                 Keine Zeiteinträge gefunden
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Zeit wird jetzt direkt am jeweiligen Ticket erfasst.
-              </p>
               <div className="mt-6">
                 <Link href="/tickets" className="btn-primary">
                   Zu den Tickets

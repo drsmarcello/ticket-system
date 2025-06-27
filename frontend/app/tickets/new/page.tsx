@@ -49,7 +49,6 @@ export default function NewTicketPage() {
     }
 
     try {
-      // automatic companyId and contactId for CUSTOMER role
       if (user?.role === "CUSTOMER") {
         const result = await createTicketMutation.mutateAsync({
           title: formData.title,

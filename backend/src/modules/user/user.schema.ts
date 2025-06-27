@@ -1,4 +1,3 @@
-// modules/user/user.schema.ts
 import { gql } from 'graphql-tag';
 
 export const typeDefs = gql`
@@ -17,9 +16,7 @@ export const typeDefs = gql`
     lastLogin: String
     createdAt: String!
     updatedAt: String!
-    # Passwort wird NIEMALS im Schema exposed
     
-    # Relations
     assignedTickets: [Ticket!]!
     createdTickets: [Ticket!]!
     timeEntries: [TimeEntry!]!
@@ -41,6 +38,11 @@ export const typeDefs = gql`
     isActive: Boolean
   }
 
+  input PasswordUpdateInput {
+  currentPassword: String!
+  newPassword: String!
+  }
+
   type Query {
     users: [User!]!
     user(id: ID!): User
@@ -52,5 +54,7 @@ export const typeDefs = gql`
     updateUser(id: ID!, data: UserUpdateInput!): User!
     deleteUser(id: ID!): User!
     updateProfile(data: UserUpdateInput!): User!
+    updatePassword(data: PasswordUpdateInput!): User!
+
   }
 `;

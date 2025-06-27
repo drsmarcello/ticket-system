@@ -86,7 +86,6 @@ export function useCompaniesForTicket() {
   });
 }
 
-// Mutations
 export function useCreateTicket() {
   const queryClient = useQueryClient();
 
@@ -161,7 +160,6 @@ export function useDeleteTicket() {
   });
 }
 
-// Comment Mutations
 export function useCreateComment() {
   const queryClient = useQueryClient();
 

@@ -37,7 +37,6 @@ export default function NewContactPage() {
     useCompany(companyId);
   const createContactMutation = useCreateContact();
 
-  // Check for Permission / Only EMPLOYEE or ADMIN
   if (user?.role === "CUSTOMER") {
     return (
       <div className="text-center py-12">
@@ -82,7 +81,6 @@ export default function NewContactPage() {
     );
   }
 
-  // Checks for valid input
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 

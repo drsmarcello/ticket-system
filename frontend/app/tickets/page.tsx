@@ -24,15 +24,15 @@ import {
 
 const statusOptions = [
   { value: "", label: "Alle Status", color: "text-gray-600" },
-  { value: "NEW", label: "🆕 Neu", color: "text-blue-600" },
+  { value: "NEW", label: "Neu", color: "text-blue-600" },
   {
     value: "IN_PROGRESS",
-    label: "⚡ In Bearbeitung",
+    label: "In Bearbeitung",
     color: "text-yellow-600",
   },
   {
     value: "WAITING_FOR_CUSTOMER",
-    label: "⏳ Wartet auf Kunde",
+    label: "Wartet auf Kunde",
     color: "text-orange-600",
   },
   { value: "COMPLETED", label: "Abgeschlossen", color: "text-green-600" },
@@ -60,7 +60,6 @@ export default function TicketsPage() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
 
-  // URL params for filters and search
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState(
     searchParams.get("status") || "",
@@ -161,7 +160,6 @@ export default function TicketsPage() {
     );
   }
 
-  // Sorting
   const sortTickets = (tickets: any[]) => {
     return [...tickets].sort((a, b) => {
       let aValue, bValue;

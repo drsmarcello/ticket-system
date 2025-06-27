@@ -41,7 +41,6 @@ export default function AdminUsersPage() {
   const { data, isLoading, error } = useUsers();
   const deleteUserMutation = useDeleteUser();
 
-  // Function checks if user has Permission / only ADMIN
   if (currentUser?.role !== "ADMIN") {
     return (
       <div className="text-center">
@@ -86,7 +85,6 @@ export default function AdminUsersPage() {
 
   const allUsers = data?.users || [];
 
-  // Filters
   let filteredUsers = allUsers;
 
   if (roleFilter) {

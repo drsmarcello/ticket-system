@@ -1,6 +1,5 @@
 import type { Ticket, Company, Contact, TimeEntry } from "@/lib/graphql";
 
-// Response Types
 export interface TicketsResponse {
   tickets: Ticket[];
 }

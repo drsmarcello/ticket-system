@@ -26,7 +26,7 @@ export function useCompanies() {
   return useQuery<CompaniesResponse>({
     queryKey: ["companies"],
     queryFn: () => client.request<CompaniesResponse>(GET_COMPANIES),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -34,7 +34,7 @@ export function useCompaniesForTicket() {
   return useQuery<CompaniesResponse>({
     queryKey: ["companies", "for-ticket"],
     queryFn: () => client.request<CompaniesResponse>(GET_COMPANIES_FOR_TICKET),
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 10 * 60 * 1000,
   });
 }
 
@@ -47,7 +47,6 @@ export function useCompany(id: string) {
   });
 }
 
-// Company Mutations
 export function useCreateCompany() {
   const queryClient = useQueryClient();
 
@@ -73,7 +72,6 @@ export function useUpdateCompany() {
     mutationFn: ({ id, data }: { id: string; data: CompanyUpdateInput }) =>
       client.request<UpdateCompanyResponse>(UPDATE_COMPANY, { id, data }),
     onSuccess: (_data, variables) => {
-      // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ["companies"] });
       queryClient.invalidateQueries({ queryKey: ["company", variables.id] });
       queryClient.refetchQueries({ queryKey: ["companies"] });
@@ -88,7 +86,6 @@ export function useDeleteCompany() {
   return useMutation({
     mutationFn: (id: string) => client.request(DELETE_COMPANY, { id }),
     onSuccess: () => {
-      // Invalidate and refetch all related queries
       queryClient.invalidateQueries({ queryKey: ["companies"] });
       queryClient.invalidateQueries({ queryKey: ["companies", "for-ticket"] });
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
@@ -97,7 +94,6 @@ export function useDeleteCompany() {
   });
 }
 
-// Contact Mutations
 export function useCreateContact() {
   const queryClient = useQueryClient();
 
@@ -105,7 +101,6 @@ export function useCreateContact() {
     mutationFn: (data: ContactCreateInput) =>
       client.request(CREATE_CONTACT, { data }),
     onSuccess: (_result) => {
-      // Invalidate and refetch all company queries
       queryClient.invalidateQueries({ queryKey: ["companies"] });
       queryClient.invalidateQueries({ queryKey: ["companies", "for-ticket"] });
       queryClient.invalidateQueries({ queryKey: ["company"] });

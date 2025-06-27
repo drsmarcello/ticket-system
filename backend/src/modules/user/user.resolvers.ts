@@ -160,6 +160,64 @@ export const resolvers = {
       }
     },
 
+    updatePassword: async (_: any, args: { data: any }, { prisma, user }: Context) => {
+      const authenticatedUser = requireAuth(user);
+      
+      const { currentPassword, newPassword } = args.data;
+      
+      if (!currentPassword || !newPassword) {
+        throw new UserInputError('Current password and new password are required');
+      }
+      
+      if (!validatePassword(newPassword)) {
+        throw new UserInputError('New password must be at least 8 characters long');
+      }
+      
+      try {
+        const currentUser = await prisma.user.findUnique({
+          where: { id: authenticatedUser.id },
+        });
+        
+        if (!currentUser) {
+          throw new UserInputError('User not found');
+        }
+        
+        const isCurrentPasswordValid = await bcrypt.compare(
+          currentPassword,
+          currentUser.password
+        );
+        
+        if (!isCurrentPasswordValid) {
+          throw new UserInputError('Current password is incorrect');
+        }
+        
+        const isSamePassword = await bcrypt.compare(
+          newPassword,
+          currentUser.password
+        );
+        
+        if (isSamePassword) {
+          throw new UserInputError('New password must be different from current password');
+        }
+        
+        const hashedNewPassword = await bcrypt.hash(newPassword, 12);
+        
+        return prisma.user.update({
+          where: { id: authenticatedUser.id },
+          data: {
+            password: hashedNewPassword,
+            updatedAt: new Date(),
+          },
+        });
+      } catch (error) {
+        if (error instanceof UserInputError) {
+          throw error;
+        }
+        console.error('Error updating password:', error);
+        throw new Error('Failed to update password');
+      }
+    },
+
     deleteUser: async (_: any, args: { id: string }, { prisma, user }: Context) => {
       const authenticatedUser = requireAdmin(user);
       
@@ -176,6 +234,7 @@ export const resolvers = {
         throw new Error('Failed to delete user');
       }
     },
+    
   },
 
   User: {

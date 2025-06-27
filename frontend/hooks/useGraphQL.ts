@@ -7,12 +7,11 @@ import {
 } from "@/lib/graphql";
 import type { CompaniesResponse, CompanyResponse } from "@/lib/graphql";
 
-// Company hooks
 export function useCompanies() {
   return useQuery<CompaniesResponse>({
     queryKey: ["companies"],
     queryFn: () => client.request<CompaniesResponse>(GET_COMPANIES),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -33,7 +32,6 @@ export function useCompany(id: string) {
   });
 }
 
-// Generic hooks for your GraphQL operations
 export function useGraphQLQuery<
   TData = any,
   TVariables extends object = Record<string, any>,

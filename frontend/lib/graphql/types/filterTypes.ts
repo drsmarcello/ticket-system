@@ -1,4 +1,3 @@
-// Filter Types
 export interface TicketFilters {
   status?:
     | "NEW"

@@ -95,7 +95,6 @@ export default function TicketDetailPage() {
   const ticket = data.ticket;
   const canEdit = user?.role === "ADMIN" || user?.role === "EMPLOYEE";
 
-  // Event Handlers
   const handleStatusChange = async (status: string) => {
     try {
       const updateData: TicketUpdateInput = { status: status as any };

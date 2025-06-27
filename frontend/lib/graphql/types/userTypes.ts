@@ -63,3 +63,13 @@ export interface DeleteUserResponse {
 export interface UpdateProfileResponse {
   updateProfile: FullUser;
 }
+
+export interface PasswordUpdateInput {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface EmailUpdateInput {
+  email: string;
+  password: string;
+}

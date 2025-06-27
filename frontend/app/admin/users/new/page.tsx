@@ -49,7 +49,6 @@ export default function NewUserPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // Function checks if user has Permission / only ADMIN
   if (currentUser?.role !== "ADMIN") {
     return (
       <div className="text-center">
@@ -67,7 +66,6 @@ export default function NewUserPage() {
     );
   }
 
-  // Checks for valid Input
   const handleInputChange = (field: keyof UserCreateInput, value: string) => {
     setFormData((prev) => ({
       ...prev,

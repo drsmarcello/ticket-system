@@ -31,7 +31,6 @@ export default function NewCompanyPage() {
 
   const createCompanyMutation = useCreateCompany();
 
-  // Permission Check / only EMPLOYEE or ADMIN
   if (user?.role === "CUSTOMER") {
     return (
       <div className="text-center py-12">
@@ -51,7 +50,6 @@ export default function NewCompanyPage() {
     );
   }
 
-  // Checks for valid input
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 

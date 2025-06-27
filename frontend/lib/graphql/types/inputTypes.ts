@@ -1,6 +1,5 @@
 import type { TimeEntry } from "@/lib/graphql";
 
-// Input Types
 export interface TicketCreateInput {
   title: string;
   description: string;

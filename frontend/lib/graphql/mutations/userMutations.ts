@@ -45,3 +45,15 @@ export const UPDATE_PROFILE = `
     }
   }
 `;
+
+export const UPDATE_PASSWORD = `
+  mutation UpdatePassword($data: PasswordUpdateInput!) {
+    updatePassword(data: $data) {
+      id
+      name
+      email
+      role
+      updatedAt
+    }
+  }
+`;
