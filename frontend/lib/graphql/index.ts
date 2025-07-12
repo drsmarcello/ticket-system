@@ -15,6 +15,7 @@ export * from './types/inputTypes'
 export * from './types/responseTypes'
 export * from './types/ticketTypes'
 export * from './types/userTypes';
+export * from './types/auditTypes';
 
 
 
@@ -24,6 +25,7 @@ export * from './queries/companyQueries';
 export * from './queries/timeQueries';
 export * from './queries/dashboardQueries';
 export * from './queries/attachmentQueries';
+export * from './queries/auditQueries';
 
 export * from './mutations/ticketMutations';
 export * from './mutations/authMutations';

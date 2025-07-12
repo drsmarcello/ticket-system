@@ -8,7 +8,7 @@ const corsOrigins = process.env.CORS_ORIGINS?.split(',').map(origin => origin.tr
 
 // Add development origins if not in production
 if (process.env.NODE_ENV !== 'production') {
-  corsOrigins.push('http://localhost:3000', 'http://localhost:5173');
+  corsOrigins.push('http://localhost:3000', 'http://localhost:4000');
 }
 
 export const corsConfig: CorsOptions = {

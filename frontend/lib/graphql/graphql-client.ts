@@ -1,42 +1,36 @@
+// frontend/src/lib/graphql-client.ts (REPLACE)
 import { GraphQLClient } from 'graphql-request';
+import { TokenManager } from '@/utils/tokenManager';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/graphql';
-
-export class GraphQLClientInstance {
+class EnhancedGraphQLClient {
   private client: GraphQLClient;
 
-  constructor() {
-    this.client = new GraphQLClient(API_URL);
+  constructor(endpoint: string) {
+    this.client = new GraphQLClient(endpoint);
   }
 
+  // 🔄 Request method that always uses current token
   async request<T = any>(document: string, variables?: any): Promise<T> {
-    try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-
-      this.client.setHeaders(headers);
-      
-      return await this.client.request<T>(document, variables);
-    } catch (error) {
-      console.error('GraphQL request failed:', error);
-      throw error;
-    }
-  }
-
-  setAuthToken(token: string | null) {
+    // Always get fresh token before request
+    const token = typeof window !== 'undefined' ? TokenManager.getAccessToken() : null;
+    
     if (token) {
       this.client.setHeader('Authorization', `Bearer ${token}`);
     } else {
       this.client.setHeader('Authorization', '');
     }
+
+    return this.client.request<T>(document, variables);
+  }
+
+  // Legacy support for setHeader
+  setHeader(name: string, value: string) {
+    this.client.setHeader(name, value);
   }
 }
 
-export const client = new GraphQLClientInstance();
+const client = new EnhancedGraphQLClient(
+  process.env.NEXT_PUBLIC_GRAPHQL_URL || 'https://api.utilbox.de/graphql'
+);
+
+export { client };

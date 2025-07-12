@@ -126,6 +126,9 @@ model User {
   role            Role        @default(EMPLOYEE)
   isActive        Boolean     @default(true)
   lastLogin       DateTime?
+
+  refreshToken    String?     @db.Text
+
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
@@ -134,6 +137,31 @@ model User {
   histories       History[]
   assignedTickets Ticket[]    @relation("AssignedTickets")
   createdTickets  Ticket[]    @relation("CreatedTickets")
+
+  auditLogs       AuditLog[]
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String   @db.VarChar(100)
+  resource  String   @db.VarChar(100)
+  details   String?  @db.Text
+  ipAddress String?  @db.VarChar(45)
+  userAgent String?  @db.Text
+  timestamp DateTime @default(now())
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Indexes für Performance
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([timestamp])
+  @@index([userId, timestamp])
+  
+  @@map("audit_logs")
 }
 
 enum Role {

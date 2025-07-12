@@ -8,6 +8,7 @@ import type { FullUser } from "@/lib/graphql";
 import LoadingSpinner from "../../../components/ui/LoadingSpinner";
 import { formatDate } from "../../../utils/dateUtils";
 import toast from "react-hot-toast";
+import AdminTabNavigation from "../../../components/admin/adminTabLayout";
 import {
   PlusIcon,
   TrashIcon,
@@ -167,7 +168,10 @@ export default function AdminUsersPage() {
   };
 
   return (
+    
     <div>
+      {/* Tab Navigation */}
+      <AdminTabNavigation />
       {/* Header */}
       <div className="sm:flex sm:items-center sm:justify-between mb-8">
         <div>

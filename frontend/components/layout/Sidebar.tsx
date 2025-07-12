@@ -44,7 +44,7 @@ export default function Sidebar() {
     },
     {
       name: "Administration",
-      href: "/admin/users",
+      href: "/admin",
       icon: UsersIcon,
       roles: ["ADMIN"],
     },

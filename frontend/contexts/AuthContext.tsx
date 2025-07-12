@@ -1,3 +1,4 @@
+// frontend/src/contexts/AuthContext.tsx (REPLACE)
 "use client";
 
 import React, {
@@ -9,6 +10,7 @@ import React, {
 } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { TokenManager } from "@/utils/tokenManager"; // 🆕 NEW
 import {
   client,
   LOGIN_MUTATION,
@@ -37,34 +39,28 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
+  // 🔄 UPDATED: Use TokenManager instead of localStorage
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const savedToken = localStorage.getItem("token");
-      setToken(savedToken);
-
-      if (savedToken) {
-        client.setHeader("Authorization", `Bearer ${savedToken}`);
+      // Migrate legacy token
+      TokenManager.migrateLegacyToken();
+      
+      const accessToken = TokenManager.getAccessToken();
+      if (accessToken) {
+        client.setHeader("Authorization", `Bearer ${accessToken}`);
       } else {
         client.setHeader("Authorization", "");
       }
     }
   }, []);
 
-  useEffect(() => {
-    if (token) {
-      client.setHeader("Authorization", `Bearer ${token}`);
-    } else {
-      client.setHeader("Authorization", "");
-    }
-  }, [token]);
-
+  // 🔄 UPDATED: Check TokenManager.isAuthenticated()
   const { data: meData, isLoading: meLoading } = useQuery<MeResponse>({
     queryKey: ["me"],
     queryFn: () => client.request<MeResponse>(GET_ME),
-    enabled: !!token,
+    enabled: TokenManager.isAuthenticated(), // 🔄 UPDATED
     retry: false,
     staleTime: 5 * 60 * 1000,
   });
@@ -75,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [meData]);
 
+  // 🔄 UPDATED: Handle new token structure
   const loginMutation = useMutation<LoginResponse, Error, LoginInput>({
     mutationFn: async ({ email, password }: LoginInput) => {
       return client.request<LoginResponse>(LOGIN_MUTATION, {
@@ -82,11 +79,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onSuccess: (data) => {
-      const { token: newToken, user: newUser } = data.login;
-      localStorage.setItem("token", newToken);
-      setToken(newToken);
+      // 🔄 UPDATED: Handle accessToken + refreshToken
+      const { accessToken, refreshToken, user: newUser } = data.login;
+      
+      // Store new tokens
+      TokenManager.setTokens(accessToken, refreshToken);
       setUser(newUser);
-      client.setHeader("Authorization", `Bearer ${newToken}`);
+      client.setHeader("Authorization", `Bearer ${accessToken}`);
       queryClient.invalidateQueries({ queryKey: ["me"] });
       toast.success(`Willkommen zurück, ${newUser.name}!`);
     },
@@ -95,6 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  // 🔄 UPDATED: Handle new token structure
   const registerMutation = useMutation<RegisterResponse, Error, RegisterInput>({
     mutationFn: async ({ name, email, password }: RegisterInput) => {
       return client.request<RegisterResponse>(REGISTER_MUTATION, {
@@ -102,11 +102,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onSuccess: (data) => {
-      const { token: newToken, user: newUser } = data.register;
-      localStorage.setItem("token", newToken);
-      setToken(newToken);
+      // 🔄 UPDATED: Handle accessToken + refreshToken
+      const { accessToken, refreshToken, user: newUser } = data.register;
+      
+      // Store new tokens
+      TokenManager.setTokens(accessToken, refreshToken);
       setUser(newUser);
-      client.setHeader("Authorization", `Bearer ${newToken}`);
+      client.setHeader("Authorization", `Bearer ${accessToken}`);
       queryClient.invalidateQueries({ queryKey: ["me"] });
       toast.success(`Willkommen, ${newUser.name}!`);
     },
@@ -138,9 +140,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // 🔄 UPDATED: Use TokenManager
   const logout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
+    TokenManager.clearTokens(); // 🔄 UPDATED
     setUser(null);
     client.setHeader("Authorization", "");
     queryClient.clear();
@@ -159,7 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         loading,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user && TokenManager.isAuthenticated(), // 🔄 UPDATED
       }}
     >
       {children}

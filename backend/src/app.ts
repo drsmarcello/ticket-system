@@ -3,7 +3,6 @@ import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
-import helmet from 'helmet';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import { mergeResolvers } from '@graphql-tools/merge';
 import * as jwt from 'jsonwebtoken';
@@ -30,6 +29,9 @@ import { resolvers as commentResolvers } from './modules/comment/comment.resolve
 
 import { typeDefs as authTypeDefs } from './modules/auth/auth.schema';
 import { resolvers as authResolvers } from './modules/auth/auth.resolvers';
+
+import { typeDefs as auditTypeDefs } from './modules/audit/audit.schema';
+import { resolvers as auditResolvers } from './modules/audit/audit.resolvers';
 
 const prisma = new PrismaClient();
 
@@ -69,33 +71,6 @@ const authenticateUser = async (token: string) => {
 async function startServer() {
   const app = express();
   
-  // 🛡️ Security Headers
-  app.use(helmet());
-  app.use(helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
-    },
-  }));
-
-  app.disable('x-powered-by');
-  app.use(helmet.referrerPolicy({ policy: 'strict-origin-when-cross-origin' }));
-  app.use(helmet.permittedCrossDomainPolicies());
-  app.use(helmet.noSniff());
-  app.use(helmet.frameguard({ action: 'deny' }));
-  app.use(helmet.hsts({
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true,
-  }));
-
   const httpServer = http.createServer(app);
 
   // 🌐 CORS - jetzt ausgelagert!
@@ -129,6 +104,7 @@ async function startServer() {
     timeEntryTypeDefs,
     commentTypeDefs,
     authTypeDefs,
+    auditTypeDefs,
   ]);
 
   const resolvers = mergeResolvers([
@@ -138,6 +114,7 @@ async function startServer() {
     timeEntryResolvers,
     commentResolvers,
     authResolvers,
+    auditResolvers,
   ]);
 
   // 🚀 Apollo Server

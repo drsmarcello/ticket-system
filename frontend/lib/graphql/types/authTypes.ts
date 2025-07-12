@@ -12,11 +12,19 @@ export interface AuthResponse {
 }
 
 export interface LoginResponse {
-  login: AuthResponse;
+  login: {
+    accessToken: string;
+    refreshToken: string;
+    user: User;
+  };
 }
 
 export interface RegisterResponse {
-  register: AuthResponse;
+  register: {
+    accessToken: string;
+    refreshToken: string;
+    user: User;
+  };
 }
 
 export interface MeResponse {
