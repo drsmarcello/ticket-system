@@ -33,7 +33,7 @@ scripts/
 
 # Logs (können sensitive Daten enthalten)
 *.log
-logs/
+
 
 # ================================
 # DEVELOPMENT FILES
