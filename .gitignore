@@ -24,10 +24,12 @@ npm-ssl/
 postgres_data*/
 backups/
 local-backups/
+.backups/
 
 # Application Uploads & User Data
 uploads/
 uploads_data*/
+scripts/
 
 # Logs (können sensitive Daten enthalten)
 *.log

@@ -3,10 +3,15 @@ import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
+import helmet from 'helmet';
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import { mergeResolvers } from '@graphql-tools/merge';
 import * as jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
+
+// 🎯 Importiere ausgelagerte Konfigurationen
+import { corsConfig, corsOrigins } from './utils/corsConfig';
+import { loginLimiter, graphqlLimiter } from './utils/rateLimiter';
 
 import { typeDefs as companyTypeDefs } from './modules/company/company.schema';
 import { resolvers as companyResolvers } from './modules/company/company.resolvers';
@@ -27,11 +32,6 @@ import { typeDefs as authTypeDefs } from './modules/auth/auth.schema';
 import { resolvers as authResolvers } from './modules/auth/auth.resolvers';
 
 const prisma = new PrismaClient();
-
-const corsOrigins = process.env.CORS_ORIGINS?.split(',') || [
-  'https://utilbox.de',
-  'https://www.utilbox.de'
-];
 
 export interface Context {
   prisma: PrismaClient;
@@ -68,13 +68,51 @@ const authenticateUser = async (token: string) => {
 
 async function startServer() {
   const app = express();
-  const httpServer = http.createServer(app);
-
-  app.use(cors({
-    origin: corsOrigins,
-    credentials: true,
+  
+  // 🛡️ Security Headers
+  app.use(helmet());
+  app.use(helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
   }));
 
+  app.disable('x-powered-by');
+  app.use(helmet.referrerPolicy({ policy: 'strict-origin-when-cross-origin' }));
+  app.use(helmet.permittedCrossDomainPolicies());
+  app.use(helmet.noSniff());
+  app.use(helmet.frameguard({ action: 'deny' }));
+  app.use(helmet.hsts({
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  }));
+
+  const httpServer = http.createServer(app);
+
+  // 🌐 CORS - jetzt ausgelagert!
+  app.use(cors(corsConfig));
+
+  // 🚦 Rate Limiting - jetzt verbessert!
+  app.use('/graphql', (req, res, next) => {
+    const query = req.body?.query || '';
+    // Spezielle Rate Limits für Auth Operations
+    if (query.includes('login') || query.includes('register')) {
+      return loginLimiter(req, res, next);
+    }
+    // Standard GraphQL Rate Limit
+    return graphqlLimiter(req, res, next);
+  });
+
+  // 🏥 Health Check
   app.get('/health', (_req, res) => {
     res.json({ 
       status: 'healthy', 
@@ -83,6 +121,7 @@ async function startServer() {
     });
   });
 
+  // 📊 GraphQL Schema
   const typeDefs = mergeTypeDefs([
     companyTypeDefs,
     ticketTypeDefs,
@@ -101,6 +140,7 @@ async function startServer() {
     authResolvers,
   ]);
 
+  // 🚀 Apollo Server
   const server = new ApolloServer({
     typeDefs,
     resolvers,
@@ -133,8 +173,7 @@ async function startServer() {
   await server.start();
   server.applyMiddleware({ 
     app: app as any, 
-    path: '/graphql',
-    cors: false,
+    path: '/graphql'
   });
 
   const PORT = process.env.PORT || 4000;
