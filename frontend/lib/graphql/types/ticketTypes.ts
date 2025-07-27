@@ -2,6 +2,7 @@ export interface Ticket {
   id: string;
   title: string;
   description: string;
+  workSummary?: string;
   status:
     | "NEW"
     | "IN_PROGRESS"

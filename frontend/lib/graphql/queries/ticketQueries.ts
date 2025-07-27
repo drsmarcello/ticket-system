@@ -38,6 +38,7 @@ export const GET_TICKET = `
       id
       title
       description
+      workSummary
       status
       priority
       estimatedMinutes

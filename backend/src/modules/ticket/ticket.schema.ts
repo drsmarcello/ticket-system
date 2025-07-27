@@ -49,6 +49,7 @@ export const typeDefs = gql`
     id: ID!
     title: String!
     description: String!
+    workSummary: String
     company: Company!
     contact: Contact!
     assignedTo: User

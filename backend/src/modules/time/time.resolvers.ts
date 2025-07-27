@@ -1,6 +1,7 @@
 import { ForbiddenError, UserInputError } from 'apollo-server-express';
 import { Context } from '../../app';
 import { requireAuth, canAccessTicket, calculateDuration } from '../../utils/auth';
+import { updateTicketWorkSummary } from '../../utils/workSummaryHelper';
 
 export const resolvers = {
   Query: {
@@ -158,6 +159,7 @@ export const resolvers = {
           },
         });
 
+        await updateTicketWorkSummary(prisma, ticketId);
         return timeEntry;
       } catch (error) {
         console.error('Error creating time entry:', error);
@@ -216,6 +218,7 @@ export const resolvers = {
       }
 
       try {
+        await updateTicketWorkSummary(prisma, ticket.id);
         return prisma.timeEntry.update({
           where: { id: args.id },
           data: updateData,
@@ -224,10 +227,12 @@ export const resolvers = {
             user: true,
           },
         });
+      
       } catch (error) {
         console.error('Error updating time entry:', error);
         throw new Error('Failed to update time entry');
       }
+      
     },
 
     deleteTimeEntry: async (_: any, args: { id: string }, { prisma, user }: Context) => {
@@ -256,17 +261,23 @@ export const resolvers = {
       }
 
       try {
-        return prisma.timeEntry.delete({
-          where: { id: args.id },
-          include: {
-            ticket: { include: { company: true, contact: true } },
-            user: true,
-          },
-        });
+      const deletedTimeEntry = await prisma.timeEntry.delete({
+        where: { id: args.id },
+        include: {
+          ticket: { include: { company: true, contact: true } },
+          user: true,
+        },
+      });
+
+      await updateTicketWorkSummary(prisma, timeEntry.ticketId);
+
+      return deletedTimeEntry;
+      
       } catch (error) {
         console.error('Error deleting time entry:', error);
         throw new Error('Failed to delete time entry');
       }
+      
     },
   },
 

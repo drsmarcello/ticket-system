@@ -199,6 +199,22 @@ export default function TicketDetailPage() {
             </div>
           </div>
 
+          {/* 🆕 NEU: Work Summary */}
+          {ticket.workSummary && (
+            <div className="bg-white shadow rounded-lg mb-6">
+              <div className="px-4 py-5 sm:p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Geleistete Arbeit
+                </h3>
+                <div className="prose max-w-none">
+                  <p className="text-gray-700 whitespace-pre-wrap">
+                    {ticket.workSummary}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Tabs */}
           <div className="bg-white shadow rounded-lg">
             <div className="border-b border-gray-200">
