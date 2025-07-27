@@ -1,11 +1,4 @@
-import { GraphQLClient } from 'graphql-request'
-
-const client = new GraphQLClient(
-    process.env.NEXT_PUBLIC_GRAPHQL_URL || 'https://api.utilbox.de/graphql'
-
-)
-
-export { client }
+export { client } from './graphql-client';
 export * from './types/authTypes';
 export * from './types/commonTypes'
 export * from './types/companyTypes'

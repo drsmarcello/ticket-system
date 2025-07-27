@@ -175,3 +175,6 @@ docker run -d --name=netdata \
 **Für hochsensible Daten (Gesundheit, Finanzen, etc.):** Implementiere mindestens Punkte 1-5 ⚠️
 
 **Für regulierte Industrien:** Alle Punkte + externe Security Audits 🔴
+
+
+Dashboard etc auf subscriptions oder mit websocket evtl? also real time updates

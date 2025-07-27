@@ -1,4 +1,4 @@
-// frontend/src/contexts/AuthContext.tsx (REPLACE)
+// frontend/src/contexts/AuthContext.tsx (SSR-SAFE VERSION)
 "use client";
 
 import React, {
@@ -10,11 +10,12 @@ import React, {
 } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { TokenManager } from "@/utils/tokenManager"; // 🆕 NEW
+import { TokenManager } from "@/utils/tokenManager";
 import {
   client,
   LOGIN_MUTATION,
   REGISTER_MUTATION,
+  LOGOUT_MUTATION,
   GET_ME
 } from "@/lib/graphql";
 import type {
@@ -30,48 +31,50 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   loading: boolean;
   isAuthenticated: boolean;
+  refreshUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const queryClient = useQueryClient();
 
-  // 🔄 UPDATED: Use TokenManager instead of localStorage
+  // 🌐 Client-side initialization
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      // Migrate legacy token
-      TokenManager.migrateLegacyToken();
-      
-      const accessToken = TokenManager.getAccessToken();
-      if (accessToken) {
-        client.setHeader("Authorization", `Bearer ${accessToken}`);
-      } else {
-        client.setHeader("Authorization", "");
-      }
-    }
+    setIsClient(true);
+    
+    TokenManager.initialize().then(() => {
+      setIsInitialized(true);
+    });
   }, []);
 
-  // 🔄 UPDATED: Check TokenManager.isAuthenticated()
-  const { data: meData, isLoading: meLoading } = useQuery<MeResponse>({
+  // Get user data if authenticated (only on client)
+  const { data: meData, isLoading: meLoading, refetch: refetchMe } = useQuery<MeResponse>({
     queryKey: ["me"],
     queryFn: () => client.request<MeResponse>(GET_ME),
-    enabled: TokenManager.isAuthenticated(), // 🔄 UPDATED
-    retry: false,
+    enabled: isClient && isInitialized && TokenManager.isAuthenticated(),
+    retry: (failureCount, error: any) => {
+      if (error?.response?.status === 401) return false;
+      return failureCount < 2;
+    },
     staleTime: 5 * 60 * 1000,
   });
 
   useEffect(() => {
     if (meData?.me) {
       setUser(meData.me);
+    } else if (isClient && isInitialized && !meLoading && !TokenManager.isAuthenticated()) {
+      setUser(null);
     }
-  }, [meData]);
+  }, [meData, isClient, isInitialized, meLoading]);
 
-  // 🔄 UPDATED: Handle new token structure
+  // Login mutation
   const loginMutation = useMutation<LoginResponse, Error, LoginInput>({
     mutationFn: async ({ email, password }: LoginInput) => {
       return client.request<LoginResponse>(LOGIN_MUTATION, {
@@ -79,13 +82,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onSuccess: (data) => {
-      // 🔄 UPDATED: Handle accessToken + refreshToken
       const { accessToken, refreshToken, user: newUser } = data.login;
       
-      // Store new tokens
       TokenManager.setTokens(accessToken, refreshToken);
       setUser(newUser);
-      client.setHeader("Authorization", `Bearer ${accessToken}`);
       queryClient.invalidateQueries({ queryKey: ["me"] });
       toast.success(`Willkommen zurück, ${newUser.name}!`);
     },
@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  // 🔄 UPDATED: Handle new token structure
+  // Register mutation
   const registerMutation = useMutation<RegisterResponse, Error, RegisterInput>({
     mutationFn: async ({ name, email, password }: RegisterInput) => {
       return client.request<RegisterResponse>(REGISTER_MUTATION, {
@@ -102,18 +102,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onSuccess: (data) => {
-      // 🔄 UPDATED: Handle accessToken + refreshToken
       const { accessToken, refreshToken, user: newUser } = data.register;
       
-      // Store new tokens
       TokenManager.setTokens(accessToken, refreshToken);
       setUser(newUser);
-      client.setHeader("Authorization", `Bearer ${accessToken}`);
       queryClient.invalidateQueries({ queryKey: ["me"] });
       toast.success(`Willkommen, ${newUser.name}!`);
     },
     onError: (error: any) => {
       toast.error(error.message || "Registrierung fehlgeschlagen");
+    },
+  });
+
+  // Logout mutation
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      return client.request(LOGOUT_MUTATION);
+    },
+    onSettled: () => {
+      TokenManager.clearTokens();
+      setUser(null);
+      queryClient.clear();
+      toast.success("Erfolgreich abgemeldet");
+      if (typeof window !== 'undefined') {
+        window.location.href = "/login";
+      }
     },
   });
 
@@ -140,18 +153,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // 🔄 UPDATED: Use TokenManager
-  const logout = () => {
-    TokenManager.clearTokens(); // 🔄 UPDATED
-    setUser(null);
-    client.setHeader("Authorization", "");
-    queryClient.clear();
-    toast.success("Erfolgreich abgemeldet");
-    window.location.href = "/login";
+  const logout = async (): Promise<void> => {
+    await logoutMutation.mutateAsync();
+  };
+
+  const refreshUser = () => {
+    refetchMe();
   };
 
   const loading =
-    meLoading || loginMutation.isPending || registerMutation.isPending;
+    !isClient ||
+    !isInitialized || 
+    meLoading || 
+    loginMutation.isPending || 
+    registerMutation.isPending ||
+    logoutMutation.isPending;
 
   return (
     <AuthContext.Provider
@@ -161,7 +177,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         loading,
-        isAuthenticated: !!user && TokenManager.isAuthenticated(), // 🔄 UPDATED
+        isAuthenticated: isClient && !!user && TokenManager.isAuthenticated(),
+        refreshUser,
       }}
     >
       {children}
